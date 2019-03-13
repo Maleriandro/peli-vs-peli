@@ -15,6 +15,7 @@ app.get('/competencias', controlador.getCompetencias);
 app.get('/competencias/:id', controlador.getUnaCompetencia);
 app.get('/competencias/:id/peliculas', controlador.getPeliculasCompetencia);
 app.post('/competencias/:id/voto', controlador.votarCompetencia);
+app.get('/competencias/:id/resultados', controlador.obtenerResultados);
 
 app.listen(process.env.PORT, function() {
 // Poner aca ese '0.0.0.0' le indica a express que tiene que correr el

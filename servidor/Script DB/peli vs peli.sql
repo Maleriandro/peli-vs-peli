@@ -1,10 +1,10 @@
 CREATE DATABASE  IF NOT EXISTS `competencias` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */;
 USE `competencias`;
--- MySQL dump 10.13  Distrib 8.0.14, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.15, for Win64 (x86_64)
 --
 -- Host: localhost    Database: competencias
 -- ------------------------------------------------------
--- Server version	8.0.14
+-- Server version	8.0.15
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -80,8 +80,17 @@ DROP TABLE IF EXISTS `competencia`;
 CREATE TABLE `competencia` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `nombre` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
+  `genero_id` int(11) unsigned DEFAULT NULL,
+  `director_id` int(11) unsigned DEFAULT NULL,
+  `actor_id` int(11) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `genero_id` (`genero_id`),
+  KEY `director_id` (`director_id`),
+  KEY `actor_id` (`actor_id`),
+  CONSTRAINT `competencia_ibfk_1` FOREIGN KEY (`genero_id`) REFERENCES `genero` (`id`),
+  CONSTRAINT `competencia_ibfk_2` FOREIGN KEY (`director_id`) REFERENCES `director` (`id`),
+  CONSTRAINT `competencia_ibfk_3` FOREIGN KEY (`actor_id`) REFERENCES `actor` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -90,7 +99,7 @@ CREATE TABLE `competencia` (
 
 LOCK TABLES `competencia` WRITE;
 /*!40000 ALTER TABLE `competencia` DISABLE KEYS */;
-INSERT INTO `competencia` VALUES (1,'¿Cuál es el mejor documental?'),(2,'¿En que película el protagonista tiene una mejor actuación?'),(3,'¿Cuál pelicula es más emocionante?');
+INSERT INTO `competencia` VALUES (8,'¿Cual película tiene acción más frenetica?',1,NULL,NULL),(9,'¿En cual pelicula DiCaprio actuó mejor?',NULL,NULL,1203),(10,'¿Que pelicula es más entretenida?',NULL,NULL,NULL);
 /*!40000 ALTER TABLE `competencia` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -216,7 +225,7 @@ DROP TABLE IF EXISTS `pelicula_competencia`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
  SET character_set_client = utf8mb4 ;
 CREATE TABLE `pelicula_competencia` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `pelicula_id` int(10) unsigned NOT NULL,
   `competencia_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
@@ -224,7 +233,7 @@ CREATE TABLE `pelicula_competencia` (
   KEY `competencia_id` (`competencia_id`),
   CONSTRAINT `pelicula_competencia_ibfk_1` FOREIGN KEY (`pelicula_id`) REFERENCES `pelicula` (`id`),
   CONSTRAINT `pelicula_competencia_ibfk_2` FOREIGN KEY (`competencia_id`) REFERENCES `competencia` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=56 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -245,4 +254,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-03-07 20:22:31
+-- Dump completed on 2019-03-13 16:57:25

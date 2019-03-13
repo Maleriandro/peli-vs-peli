@@ -1,4 +1,5 @@
-var db = require('../mysql.js');
+const db = require('../mysql.js');
+const respuesta = require('../respuestas-estandarizadas/respuestas.js')
 
 
 async function getCompetencias(req, res) {
@@ -7,30 +8,32 @@ async function getCompetencias(req, res) {
     try {
         var rows = await db(query);
 
-        res.send(rows);
+        respuesta.success(rows, res);
     } catch (error) {
-        respuestaError(error, res);
-        console.log(error)
+        respuesta.error(error, res);
     }
     
-    // db.query(query, function(error, rows) {
-    //     res.send(rows);
-    // });
 }
 
 
 async function getUnaCompetencia(req, res) {
     const query = `
-                    SELECT * FROM competencia
-                    WHERE id = ${req.params.id};
-    `
+                    SELECT c.nombre, g.nombre AS genero_nombre, d.nombre AS director_nombre, a.nombre AS actor_nombre 
+                    FROM competencia c
+                    LEFT JOIN genero g ON genero_id = g.id
+                    LEFT JOIN director d on director_id = d.id
+                    LEFT JOIN actor a on actor_id = a.id
+                    WHERE c.id = ${req.params.id};
+    `;
 
     try {
-        var rows = await db(query);
+        const rows = await db(query);
 
-        res.send(rows);
+        const response = rows[0];
+
+        respuesta.success(rows, res, response);
     } catch (error) {
-        respuestaError(error, res);
+        respuesta.error(error, res);
     }    
 }
 
@@ -39,11 +42,9 @@ async function getPeliculasCompetencia(req, res) {
     const queryCompetencia = `
     SELECT * FROM competencia
     WHERE id = ${req.params.id};
-    `
+    `;
     
-    const queryPeliculas = `SELECT * FROM pelicula
-    ORDER BY RAND()
-    LIMIT 2; `;
+    
     
     try {
         var competencia = await db(queryCompetencia);
@@ -56,6 +57,33 @@ async function getPeliculasCompetencia(req, res) {
 
             return;
         }
+
+        var datosCompetencia = competencia[0];
+
+        const generoId = datosCompetencia.genero_id;
+        const directorId = datosCompetencia.director_id;
+        const actorId = datosCompetencia.actor_id;
+        
+        let queryPeliculas = `SELECT p.id, p.poster, p.titulo FROM pelicula p
+                            JOIN director_pelicula d_p ON d_p.pelicula_id = p.id
+                            JOIN actor_pelicula a_p ON a_p.pelicula_id = p.id
+                            WHERE 1 = 1`;
+        
+        
+        if (generoId) {
+            queryPeliculas += ` AND genero_id = ${generoId}`;
+        }
+
+        if (directorId) {
+            queryPeliculas += ` AND d_p.director_id = ${directorId}`;
+        }
+
+        if (actorId) {
+            queryPeliculas += ` AND a_p.actor_id = ${actorId}`;
+        }
+        
+        queryPeliculas += ` ORDER BY RAND()
+                            LIMIT 2;`;
         
         var peliculas = await db(queryPeliculas);
         
@@ -64,9 +92,9 @@ async function getPeliculasCompetencia(req, res) {
             peliculas: peliculas
         }
         
-        res.send(response)
+        respuesta.success(peliculas, res, response);
     } catch (error) {
-        respuestaError(error, res);
+        respuesta.error(error, res);
     }
 }
 
@@ -78,12 +106,12 @@ async function votarCompetencia(req, res) {
     const queryExisteCompetencia = `
         SELECT * FROM competencia
         WHERE id = ${idCompetencia};
-    `
+    `;
 
     const queryExistePelicula = `
         SELECT * FROM pelicula
         WHERE id = ${idPeliculaVotada};
-    `
+    `;
 
     const query = `INSERT INTO pelicula_competencia (pelicula_id, competencia_id)
                     VALUES (${idPeliculaVotada}, ${idCompetencia})`;
@@ -99,8 +127,8 @@ async function votarCompetencia(req, res) {
             
             await db(query);
 
-            res.status(200);
-            res.send()
+            res.status(204);
+            res.send('Se registró el voto')
             
 
         } else {
@@ -115,16 +143,11 @@ async function votarCompetencia(req, res) {
             res.status(404);
             res.send({
                 message: message
-            })
+            });
         }
 
-
-
-        
-
-
     } catch (error) {
-        respuestaError(error,res);
+        respuesta.error(error,res);
     }
     
 }
@@ -132,19 +155,30 @@ async function votarCompetencia(req, res) {
 async function obtenerResultados(req, res) {
     const idCompetencia = req.params.id;
 
-    const query = `SELECT count(*) AS votos, pelicula_id, pelicula.poster, pelicula.titulo  FROM pelicula_competencia
-    JOIN pelicula on pelicula_competencia.pelicula_id = pelicula.id
-    JOIN competencia on pelicula_competencia.competencia_id = competencia.id
-    WHERE competencia_id = ${idCompetencia}
-    GROUP BY pelicula_id
-    order by votos desc
-    LIMIT 3;`;
+    const query = `SELECT count(*) AS votos, pelicula_id, pelicula.poster, pelicula.titulo
+                    FROM pelicula_competencia
+                    JOIN pelicula ON pelicula_competencia.pelicula_id = pelicula.id
+                    JOIN competencia ON pelicula_competencia.competencia_id = competencia.id
+                    WHERE competencia_id = ${idCompetencia}
+                    GROUP BY pelicula_id
+                    ORDER BY votos DESC
+                    LIMIT 3;`;
 
-    const queryNombreCompetencia = `SELECT nombre FROM competencia WHERE id = ${idCompetencia}`
+    const queryNombreCompetencia = `SELECT nombre FROM competencia WHERE id = ${idCompetencia}`;
 
         
     try {
         const nombreCompetencia = await db(queryNombreCompetencia);
+
+        if (nombreCompetencia.length === 0) {
+            res.status(404);
+            res.send({
+                message: 'No se encontró ningun resultado'
+            });
+
+            return;
+        }
+
         const votos = await db(query);
         
         
@@ -153,30 +187,14 @@ async function obtenerResultados(req, res) {
             resultados: votos
         }
 
-        res.send(response);
+        respuesta.success(votos, res, response);
 
 
     } catch (error) {
-        respuestaError(error, res);
-        console.log(error);
+        respuesta.error(error, res);
     }
 
 }
-
-
-function respuestaError(error, res) {
-    res.status(500);
-	
-	res.send({
-        message: error.message
-	});
-}
-
-
-
-
-
-
 
 module.exports = {
     getCompetencias : getCompetencias,

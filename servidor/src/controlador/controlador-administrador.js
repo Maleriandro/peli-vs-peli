@@ -77,40 +77,56 @@ async function cargarActores(req, res) {
 }
 
 async function eliminarVotos(req, res) {
+
+    try {
     const queryBuscarCompetencia = `SELECT id, nombre FROM competencia WHERE id = '${req.params.id}'`;
 
     const queryEliminarVotos = `DELETE FROM pelicula_competencia WHERE competencia_id = ${req.params.id} `;
     
-    try {
         var buscarCompetencia = await db(queryBuscarCompetencia);
         
         if (buscarCompetencia.length == 0) {
-            res.status(404);
-            res.send('No existe la competencia')
+            if (res) {
+            
+                res.status(404);
+                res.send('No existe la competencia')
+            }
 
-            return;
+            return false;
         }
 
         await db(queryEliminarVotos);
+        
+        if (res) {
+            res.status(204);
+            res.send({message: 'Se eliminaron los votos'})
+        }
 
-        res.status(204);
-        res.send({message: 'Se eliminaron los votos'})
-
+        return true;
+        
     } catch (error) {
         respuesta.error(error, res);
+        return error;
     }
 }
 
 async function eliminarCompetencia(req, res) {
     try {
-
+    
     const compId = req.params.id;
-    console.log('antesVosos')
-    await eliminarVotos(req, res);
 
-    const queryEliminarComp = `DELETE FROM competencia WHERE id = ${compId}`;
+        const competenciaEncontrada = await eliminarVotos(req);
 
-        // ! REVISAR ERROR AL ELIMINAR
+        if (!competenciaEncontrada) {
+            res.status(404);
+
+            res.send('No se encontró la competencia que solicitó eliminar');
+
+            return;
+        }
+
+        const queryEliminarComp = `DELETE FROM competencia WHERE id = ${compId}`;
+
         await db(queryEliminarComp);
 
 

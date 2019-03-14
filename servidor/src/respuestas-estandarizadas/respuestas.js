@@ -1,9 +1,9 @@
 function respuestaError(error, res) {
     res.status(500);
 	
-	res.send({
-        message: error.message
-    });
+	res.send(
+        error.message
+    );
     
     console.log(error);
 }

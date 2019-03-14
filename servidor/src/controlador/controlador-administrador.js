@@ -13,6 +13,23 @@ async function agregarCompetencia(req, res) {
     const query = `INSERT INTO competencia (nombre, genero_id, director_id, actor_id)
                     VALUES ('${nombre}', ${genero}, ${director}, ${actor})`;
 
+    let queryPeliculas = `SELECT COUNT(*) AS cantidad_peliculas FROM pelicula p
+                    JOIN director_pelicula d_p ON d_p.pelicula_id = p.id
+                    JOIN actor_pelicula a_p ON a_p.pelicula_id = p.id
+                    WHERE 1 = 1`;
+
+
+    if (genero) {
+        queryPeliculas += ` AND genero_id = ${genero}`;
+    }
+
+    if (director) {
+        queryPeliculas += ` AND d_p.director_id = ${director}`;
+    }
+
+    if (actor) {
+        queryPeliculas += ` AND a_p.actor_id = ${actor}`;
+    }
 
 
     try {
@@ -21,6 +38,17 @@ async function agregarCompetencia(req, res) {
         if (buscarCompetencia.length == 1) {
             res.status(422);
             res.send('Ya existe una competencia con ese nombre.')
+
+            return;
+        }
+
+        const peliculas = await db(queryPeliculas);
+        const cantidadPeliculas = peliculas[0].cantidad_peliculas;
+
+
+        if (cantidadPeliculas < 2) {
+            res.status(422);
+            res.send('No existen suficientes peliculas con las caracteristicas de esta competencia');
 
             return;
         }

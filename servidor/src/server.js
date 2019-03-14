@@ -11,7 +11,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
 
-app.get('/', function(req, res) {res.send('hello world!')});
+app.get('/', controlador.get);
 app.get('/competencias', controlador.getCompetencias);
 app.get('/competencias/:id', controlador.getUnaCompetencia);
 app.get('/competencias/:id/peliculas', controlador.getPeliculasCompetencia);

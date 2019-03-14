@@ -1,6 +1,7 @@
 const db = require('../mysql.js');
 const respuesta = require('../respuestas-estandarizadas/respuestas.js')
 
+function get(req, res) {res.send('<h1>Peli vs Peli</h1> <p>Version 1.0</p>')}
 
 async function getCompetencias(req, res) {
     const query = `SELECT * FROM competencia`;
@@ -197,6 +198,7 @@ async function obtenerResultados(req, res) {
 }
 
 module.exports = {
+    get : get,
     getCompetencias : getCompetencias,
     getUnaCompetencia : getUnaCompetencia,
     getPeliculasCompetencia : getPeliculasCompetencia,

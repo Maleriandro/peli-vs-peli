@@ -90,7 +90,7 @@ CREATE TABLE `competencia` (
   CONSTRAINT `competencia_ibfk_1` FOREIGN KEY (`genero_id`) REFERENCES `genero` (`id`),
   CONSTRAINT `competencia_ibfk_2` FOREIGN KEY (`director_id`) REFERENCES `director` (`id`),
   CONSTRAINT `competencia_ibfk_3` FOREIGN KEY (`actor_id`) REFERENCES `actor` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -254,4 +254,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-03-13 16:57:25
+-- Dump completed on 2019-03-14 20:49:42

@@ -28,9 +28,6 @@ app.delete('/competencias/:id', controladorAdministrador.eliminarCompetencia);
 app.put('/competencias/:id', controladorAdministrador.cambiarNombreCompetencia);
 
 
-app.listen(process.env.PORT, function() {
-// Poner aca ese '0.0.0.0' le indica a express que tiene que correr el
-// servidor en la IP de la computadora en la red local.
-    console.log('Servidor escuchando en el puerto', process.env.PORT); 
-    // El puerto del servidor termina siendo el 8080
+app.listen(8080, function() {
+    console.log('Servidor escuchando en el puerto 8080');
   });

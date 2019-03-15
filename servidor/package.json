@@ -5,9 +5,8 @@
   "main": "src/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "set PORT=8080 && node src/server",
-    "start-unix": "PORT=8080 node src/server",
-    "dev": "set PORT=8080 && nodemon src/server --watch src"
+    "start": "node src/server",
+    "dev": "nodemon src/server --watch src"
   },
   "author": "Maleriandro",
   "license": "ISC",
